@@ -1,0 +1,62 @@
+version: '3'
+services:
+  otel-collector:
+    container_name: otel-collector
+    image: marcussinkinson/otel:1.0
+    command: ["./wait-for-it.sh", "promscale:9202", "--strict", "--timeout=100", "--", "./collector", "--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - 4433:4433 # AWS firehose receiver for metrics
+      - 4318:4318 # OTLP HTTP receiver for traces
+      - 4317:4317 # OTLP receiver
+    depends_on:
+      - promscale
+
+  db:
+    container_name: timescaledb
+    image: timescale/timescaledb-ha:pg14-latest
+    restart: on-failure
+    ports:
+      - 5432:5432/tcp
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      TSTUNE_PROFILE: promscale
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - timescale_data:/var/lib/postgresql/data
+
+  promscale:
+    container_name: promscale
+    image: timescale/promscale:latest
+    restart: on-failure
+    ports:
+      - 9201:9201/tcp
+      - 9202:9202/tcp
+    environment:
+      PROMSCALE_DB_CONNECT_RETRIES: 10
+      PROMSCALE_DB_URI: postgres://postgres:password@db:5432/postgres?sslmode=allow
+    depends_on:
+      db:
+        condition: service_healthy
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    depends_on:
+      - promscale
+
+volumes:
+  grafana_data:
+  timescale_data:
