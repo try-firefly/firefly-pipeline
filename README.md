@@ -7,9 +7,6 @@ Project description goes here
 * Running docker daemon
 * Lamdba function to monitor
 
-* Functions have been instrumented, along with the metric stream and firehose being setup
-  * Instructions [here](https://github.com/try-firefly/firefly-cli)
-
 ## Setup
 
 ### Instrumentation
