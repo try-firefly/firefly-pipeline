@@ -29,7 +29,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - timescale_data:/var/lib/postgresql/data
+      - timescale_data:/home/postgres/pgdata/data
 
   promscale:
     container_name: promscale
