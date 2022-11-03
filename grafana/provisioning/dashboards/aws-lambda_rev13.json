@@ -834,7 +834,7 @@
         "current": {},
         "hide": 0,
         "includeAll": false,
-        "label": "datasource",
+        "label": "prom-metrics",
         "multi": false,
         "name": "prom-metrics",
         "options": [],
