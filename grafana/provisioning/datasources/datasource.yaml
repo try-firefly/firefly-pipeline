@@ -10,6 +10,7 @@ datasources:
   - name: promscale-metrics
     type: prometheus
     access: proxy
+    uid: prom-metrics
     orgId: 1
     url: http://promscale:9201
     version: 1
@@ -17,7 +18,7 @@ datasources:
   - name: promscale-traces
     type: jaeger
     access: proxy
+    uid: prom-traces
     orgId: 1
     url: http://promscale:9201
     version: 1
-
