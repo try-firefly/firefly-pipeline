@@ -836,7 +836,7 @@
         "includeAll": false,
         "label": "prom-metrics",
         "multi": false,
-        "name": "prom-metrics",
+        "name": "datasource",
         "options": [],
         "query": "prom-metrics",
         "datasource": "Prometheus",
