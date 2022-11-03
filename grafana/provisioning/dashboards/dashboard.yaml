@@ -3,5 +3,7 @@ apiVersion: 1
 providers:
   - name: "firefly"
     orgId: 1
+    type: file
+    editable: true
     options:
-    path: "/etc/grafana/provisioning/dashboards"
+      path: /etc/grafana/provisioning/dashboards

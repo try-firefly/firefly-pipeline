@@ -13,6 +13,7 @@ datasources:
     uid: prom-metrics
     orgId: 1
     url: http://promscale:9201
+    editable: true
     version: 1
 
   - name: promscale-traces
@@ -21,4 +22,5 @@ datasources:
     uid: prom-traces
     orgId: 1
     url: http://promscale:9201
+    editable: true
     version: 1
