@@ -24,7 +24,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": 1,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -117,7 +117,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
+        "w": 5,
         "x": 5,
         "y": 0
       },
@@ -160,6 +160,7 @@
         "type": "prometheus",
         "uid": "prom-metrics"
       },
+      "description": "Per day",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -180,8 +181,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 9,
+        "w": 4,
+        "x": 10,
         "y": 0
       },
       "id": 10,
@@ -207,13 +208,12 @@
             "uid": "prom-metrics"
           },
           "editorMode": "builder",
-          "expr": "init_duration_count{function_name=\"$FunctionName\"}",
+          "expr": "count_over_time(init_duration_count{function_name=\"$FunctionName\"}[24h])",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "timeFrom": "1h",
       "title": "Cold starts",
       "transparent": true,
       "type": "stat"
@@ -244,7 +244,7 @@
       "gridPos": {
         "h": 4,
         "w": 5,
-        "x": 15,
+        "x": 14,
         "y": 0
       },
       "id": 2,
@@ -284,6 +284,7 @@
         "type": "prometheus",
         "uid": "prom-metrics"
       },
+      "description": "Per hour",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -304,11 +305,11 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
-        "x": 20,
+        "w": 5,
+        "x": 19,
         "y": 0
       },
-      "id": 6,
+      "id": 26,
       "options": {
         "colorMode": "none",
         "graphMode": "none",
@@ -331,13 +332,12 @@
             "uid": "prom-metrics"
           },
           "editorMode": "builder",
-          "expr": "Errors{Resource=\"$FunctionName\", quantile=\"1\"}",
+          "expr": "sum_over_time(Errors{Resource=\"$FunctionName\", quantile=\"1\"}[1h])",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "timeFrom": "1h",
       "title": "Errors",
       "transparent": true,
       "type": "stat"
@@ -374,7 +374,7 @@
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
+            "showPoints": "never",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -399,11 +399,12 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 24,
         "x": 0,
         "y": 4
       },
       "id": 22,
+      "interval": "1m",
       "options": {
         "legend": {
           "calcs": [],
@@ -431,98 +432,6 @@
       ],
       "timeFrom": "2h",
       "title": "Invocations",
-      "transparent": true,
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "datasource",
-        "uid": "-- Mixed --"
-      },
-      "description": "Per minute average",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "light-blue",
-            "mode": "fixed"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 30,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 4
-      },
-      "id": 20,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prom-metrics"
-          },
-          "editorMode": "builder",
-          "expr": "Duration{Resource=\"$FunctionName\", quantile=\"1\"}",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "timeFrom": "2h",
-      "title": "Duration (ms)",
       "transparent": true,
       "type": "timeseries"
     },
@@ -705,7 +614,7 @@
           "refId": "A"
         }
       ],
-      "timeFrom": "1h",
+      "timeFrom": "2h",
       "title": "Throttles",
       "transparent": true,
       "type": "timeseries"
@@ -884,7 +793,6 @@
           "service": "$FunctionName"
         }
       ],
-      "timeFrom": "30m",
       "title": "Duration",
       "transparent": true,
       "type": "barchart"
@@ -954,6 +862,7 @@
       "type": "table"
     }
   ],
+  "refresh": "30s",
   "schemaVersion": 37,
   "style": "dark",
   "tags": [],
@@ -961,9 +870,9 @@
     "list": [
       {
         "current": {
-          "selected": true,
-          "text": "firefly-test-2",
-          "value": "firefly-test-2"
+          "selected": false,
+          "text": "firefly-test-3",
+          "value": "firefly-test-3"
         },
         "datasource": {
           "type": "prometheus",
@@ -989,13 +898,13 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "firefly-dashboard",
   "uid": "xgvmuzDVk",
-  "version": 6,
+  "version": 1,
   "weekStart": ""
 }
