@@ -871,8 +871,8 @@
       {
         "current": {
           "selected": false,
-          "text": "firefly-test-3",
-          "value": "firefly-test-3"
+          "text": "$FunctionName",
+          "value": "$FunctionName"
         },
         "datasource": {
           "type": "prometheus",
@@ -903,7 +903,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "firefly-dashboard",
+  "title": "firefly",
   "uid": "xgvmuzDVk",
   "version": 2,
   "weekStart": ""
