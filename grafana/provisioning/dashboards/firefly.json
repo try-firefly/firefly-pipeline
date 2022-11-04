@@ -223,6 +223,7 @@
         "type": "jaeger",
         "uid": "prom-traces"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -274,7 +275,6 @@
           "service": "$FunctionName"
         }
       ],
-      "timeFrom": "1h",
       "title": "Average Duration",
       "transparent": true,
       "type": "stat"
@@ -347,11 +347,11 @@
         "type": "prometheus",
         "uid": "prom-metrics"
       },
-      "description": "Per minute",
+      "description": "Per minute average",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "light-blue",
+            "fixedColor": "#023047",
             "mode": "fixed"
           },
           "custom": {
@@ -443,7 +443,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "light-blue",
+            "fixedColor": "#023047",
             "mode": "fixed"
           },
           "custom": {
@@ -536,7 +536,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "light-blue",
+            "fixedColor": "#023047",
             "mode": "fixed"
           },
           "custom": {
@@ -627,7 +627,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "light-blue",
+            "fixedColor": "#023047",
             "mode": "fixed"
           },
           "custom": {
@@ -705,7 +705,7 @@
           "refId": "A"
         }
       ],
-      "timeFrom": "1h",
+      "timeFrom": "2h",
       "title": "Concurrent Executions",
       "transparent": true,
       "type": "timeseries"
@@ -718,7 +718,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "light-blue",
+            "fixedColor": "#023047",
             "mode": "fixed"
           },
           "custom": {
@@ -727,8 +727,8 @@
             "axisGridShow": true,
             "axisLabel": "",
             "axisPlacement": "auto",
-            "fillOpacity": 80,
-            "gradientMode": "none",
+            "fillOpacity": 70,
+            "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
@@ -905,6 +905,6 @@
   "timezone": "",
   "title": "firefly-dashboard",
   "uid": "xgvmuzDVk",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
