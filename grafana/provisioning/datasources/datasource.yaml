@@ -24,3 +24,19 @@ datasources:
     url: http://promscale:9201
     editable: true
     version: 1
+
+  - name: promscale-sql
+    uid: prom-sql
+    type: postgres
+    version: 1
+    access: proxy
+    orgId: 1
+    editable: true
+    url: http://timescaledb:5432
+    database: postgres
+    user: postgres
+    secureJsonData:
+      password: "password"
+    jsonData:
+      sslmode: "disable" # disable/require/verify-ca/verify-full
+      timescaledb: true

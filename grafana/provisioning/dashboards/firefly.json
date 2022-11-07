@@ -39,6 +39,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
+          "noValue": "-",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -73,7 +74,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "9.2.2",
       "targets": [
         {
           "datasource": {
@@ -136,7 +137,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "9.2.2",
       "targets": [
         {
           "datasource": {
@@ -167,6 +168,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
+          "noValue": "-",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -200,7 +202,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "9.2.2",
       "targets": [
         {
           "datasource": {
@@ -230,6 +232,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
+          "noValue": "-",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -263,7 +266,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "9.2.2",
       "targets": [
         {
           "datasource": {
@@ -291,6 +294,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
+          "noValue": "-",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -324,7 +328,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "9.2.2",
       "targets": [
         {
           "datasource": {
@@ -344,15 +348,14 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prom-metrics"
+        "type": "postgres",
+        "uid": "prom-sql"
       },
-      "description": "Per minute average",
+      "description": "Number of invocations of ${FunctionName} per minute",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "#023047",
-            "mode": "fixed"
+            "mode": "palette-classic"
           },
           "custom": {
             "axisCenteredZero": false,
@@ -360,21 +363,21 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 30,
-            "gradientMode": "opacity",
+            "drawStyle": "bars",
+            "fillOpacity": 26,
+            "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "linear",
+            "lineInterpolation": "stepAfter",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "never",
+            "showPoints": "auto",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -403,14 +406,14 @@
         "x": 0,
         "y": 4
       },
-      "id": 22,
+      "id": 28,
       "interval": "1m",
       "options": {
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": false
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -420,18 +423,39 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prom-metrics"
+            "type": "postgres",
+            "uid": "prom-sql"
           },
-          "editorMode": "builder",
-          "expr": "Invocations_count{Resource=\"$FunctionName\"}",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT time, value, val(\"Resource_id\") AS resource\nFROM \"Invocations_count\"\nWHERE \n  time > now() - INTERVAL '30 minutes'\n  AND val(\"Resource_id\") = '$FunctionName'\n;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "\"ConcurrentExecutions\"",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
-      "timeFrom": "2h",
-      "title": "Invocations",
+      "title": "Invocations Per Minute",
       "transparent": true,
       "type": "timeseries"
     },
@@ -522,7 +546,6 @@
           "refId": "A"
         }
       ],
-      "timeFrom": "2h",
       "title": "Errors",
       "transparent": true,
       "type": "timeseries"
@@ -614,7 +637,6 @@
           "refId": "A"
         }
       ],
-      "timeFrom": "2h",
       "title": "Throttles",
       "transparent": true,
       "type": "timeseries"
@@ -705,7 +727,6 @@
           "refId": "A"
         }
       ],
-      "timeFrom": "2h",
       "title": "Concurrent Executions",
       "transparent": true,
       "type": "timeseries"
@@ -715,29 +736,41 @@
         "type": "jaeger",
         "uid": "prom-traces"
       },
+      "description": "Invocation duration based on trace data on a logarithmic scale over invocation start time",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "#023047",
-            "mode": "fixed"
+            "mode": "palette-classic"
           },
           "custom": {
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisGridShow": true,
             "axisLabel": "",
             "axisPlacement": "auto",
-            "fillOpacity": 70,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 25,
             "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
+            "lineInterpolation": "linear",
             "lineWidth": 1,
+            "pointSize": 5,
             "scaleDistribution": {
               "log": 2,
               "type": "log"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
           },
           "mappings": [],
@@ -747,6 +780,10 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
               }
             ]
           }
@@ -761,26 +798,18 @@
       },
       "id": 4,
       "options": {
-        "barRadius": 0,
-        "barWidth": 0.97,
-        "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
-        "orientation": "auto",
-        "showValue": "auto",
-        "stacking": "none",
         "tooltip": {
           "mode": "single",
           "sort": "none"
-        },
-        "xField": "startTime",
-        "xTickLabelRotation": 90,
-        "xTickLabelSpacing": 0
+        }
       },
+      "pluginVersion": "9.2.2",
       "targets": [
         {
           "datasource": {
@@ -793,9 +822,9 @@
           "service": "$FunctionName"
         }
       ],
-      "title": "Duration",
+      "title": "Trace Duration",
       "transparent": true,
-      "type": "barchart"
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -807,19 +836,24 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {
-            "align": "auto",
-            "displayMode": "auto",
-            "filterable": true,
-            "inspect": true
-          },
+          "links": [
+            {
+              "targetBlank": true,
+              "title": "Trace View",
+              "url": "/explore?orgId=1&left=%7B%22datasource%22:%22prom-traces%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22datasource%22:%7B%22type%22:%22jaeger%22,%22uid%22:%22prom-traces%22%7D,%22query%22:%22${__data.fields[\"traceID\"]}%22%7D%5D,%22range%22:%7B%22from%22:%22now-1h%22,%22to%22:%22now%22%7D%7D"
+            }
+          ],
           "mappings": [],
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
-                "color": "green",
+                "color": "dark-blue",
                 "value": null
+              },
+              {
+                "color": "dark-orange",
+                "value": 60
               }
             ]
           }
@@ -834,16 +868,19 @@
       },
       "id": 18,
       "options": {
-        "footer": {
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
+        "displayMode": "gradient",
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "/^Duration$/",
+          "limit": 15,
+          "values": true
         },
-        "showHeader": true
+        "showUnfilled": true
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "9.2.2",
       "targets": [
         {
           "datasource": {
@@ -856,10 +893,10 @@
           "service": "$FunctionName"
         }
       ],
-      "timeFrom": "1h",
       "title": "Traces",
+      "transformations": [],
       "transparent": true,
-      "type": "table"
+      "type": "bargauge"
     }
   ],
   "refresh": "30s",
@@ -905,6 +942,6 @@
   "timezone": "",
   "title": "firefly",
   "uid": "xgvmuzDVk",
-  "version": 2,
+  "version": 16,
   "weekStart": ""
 }
