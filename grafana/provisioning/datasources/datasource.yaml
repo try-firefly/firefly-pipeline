@@ -32,7 +32,7 @@ datasources:
     access: proxy
     orgId: 1
     editable: true
-    url: http://timescaledb:5432
+    url: timescaledb:5432
     database: postgres
     user: postgres
     secureJsonData:
