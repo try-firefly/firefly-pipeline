@@ -24,80 +24,16 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 2,
   "links": [],
   "liveNow": false,
   "panels": [
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prom-metrics"
+        "type": "postgres",
+        "uid": "prom-sql"
       },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "noValue": "-",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 5,
-        "x": 0,
-        "y": 0
-      },
-      "id": 16,
-      "options": {
-        "colorMode": "none",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.2.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prom-metrics"
-          },
-          "editorMode": "builder",
-          "expr": "memory_utilization{function_name=\"$FunctionName\", quantile=\"1\"}",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Memory utilization",
-      "transparent": true,
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prom-metrics"
-      },
-      "description": "Per minute",
+      "description": "Total over time period selected",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -119,10 +55,10 @@
       "gridPos": {
         "h": 4,
         "w": 5,
-        "x": 5,
+        "x": 0,
         "y": 0
       },
-      "id": 8,
+      "id": 30,
       "options": {
         "colorMode": "none",
         "graphMode": "none",
@@ -137,19 +73,40 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.2",
+      "pluginVersion": "9.2.1",
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prom-metrics"
+            "type": "postgres",
+            "uid": "prom-sql"
           },
-          "editorMode": "builder",
-          "expr": "Invocations_count{Resource=\"$FunctionName\"}",
+          "format": "table",
+          "group": [],
           "hide": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT sum(invocations)\nFROM (SELECT sum(value) AS invocations, val(\"Resource_id\") AS service_name, time\n  FROM \"Invocations_count\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") = '${FunctionName}'\n  GROUP BY service_name, time) AS total_invocations;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "\"ConcurrentExecutions\"",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "title": "Invocations",
@@ -158,10 +115,10 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prom-metrics"
+        "type": "postgres",
+        "uid": "prom-sql"
       },
-      "description": "Per day",
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -184,10 +141,10 @@
       "gridPos": {
         "h": 4,
         "w": 4,
-        "x": 10,
+        "x": 5,
         "y": 0
       },
-      "id": 10,
+      "id": 31,
       "options": {
         "colorMode": "none",
         "graphMode": "none",
@@ -202,21 +159,129 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.2",
+      "pluginVersion": "9.2.1",
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prom-metrics"
+            "type": "postgres",
+            "uid": "prom-sql"
           },
-          "editorMode": "builder",
-          "expr": "count_over_time(init_duration_count{function_name=\"$FunctionName\"}[24h])",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT sum(value) AS value, val(\"function_name_id\") AS service_name\nFROM \"init_duration_count\"\nWHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"function_name_id\") = '${FunctionName}'\nGROUP BY service_name;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "\"ConcurrentExecutions\"",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "title": "Cold starts",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "prom-sql"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "noValue": "-",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 9,
+        "y": 0
+      },
+      "id": 32,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "prom-sql"
+          },
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT sum(value), val(\"Resource_id\") AS service_name\nFROM \"Errors_sum\"\nWHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") = '$FunctionName'\nGROUP BY service_name;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "\"ConcurrentExecutions\"",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Errors",
       "transparent": true,
       "type": "stat"
     },
@@ -247,8 +312,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 5,
-        "x": 14,
+        "w": 4,
+        "x": 15,
         "y": 0
       },
       "id": 2,
@@ -266,7 +331,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.2",
+      "pluginVersion": "9.2.1",
       "targets": [
         {
           "datasource": {
@@ -284,10 +349,9 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prom-metrics"
+        "type": "postgres",
+        "uid": "prom-sql"
       },
-      "description": "Per hour",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -303,7 +367,8 @@
                 "value": null
               }
             ]
-          }
+          },
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -313,7 +378,7 @@
         "x": 19,
         "y": 0
       },
-      "id": 26,
+      "id": 29,
       "options": {
         "colorMode": "none",
         "graphMode": "none",
@@ -328,21 +393,43 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.2",
+      "pluginVersion": "9.2.1",
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prom-metrics"
+            "type": "postgres",
+            "uid": "prom-sql"
           },
-          "editorMode": "builder",
-          "expr": "sum_over_time(Errors{Resource=\"$FunctionName\", quantile=\"1\"}[1h])",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT time, avg(value) AS value\nFROM memory_utilization\nWHERE $__timeFilter(\"time\")\nGROUP BY time\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "\"ConcurrentExecutions\"",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
-      "title": "Errors",
+      "title": "Memory utilization",
       "transparent": true,
       "type": "stat"
     },
@@ -351,11 +438,11 @@
         "type": "postgres",
         "uid": "prom-sql"
       },
-      "description": "Number of invocations of ${FunctionName} per minute",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "fixedColor": "#023047",
+            "mode": "fixed"
           },
           "custom": {
             "axisCenteredZero": false,
@@ -364,14 +451,14 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "bars",
-            "fillOpacity": 26,
-            "gradientMode": "none",
+            "fillOpacity": 30,
+            "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "stepAfter",
+            "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -406,14 +493,13 @@
         "x": 0,
         "y": 4
       },
-      "id": 28,
-      "interval": "1m",
+      "id": 35,
       "options": {
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "single",
@@ -431,7 +517,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT time, value, val(\"Resource_id\") AS resource\nFROM \"Invocations_count\"\nWHERE \n  time > now() - INTERVAL '30 minutes'\n  AND val(\"Resource_id\") = '$FunctionName'\n;",
+          "rawSql": "SELECT sum(value) AS invocations, val(\"Resource_id\") AS service_name, time\nFROM \"Invocations_count\"\nWHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") = '$FunctionName'\nGROUP BY service_name, time\nORDER BY time asc;",
           "refId": "A",
           "select": [
             [
@@ -455,14 +541,14 @@
           ]
         }
       ],
-      "title": "Invocations Per Minute",
+      "title": "Invocations",
       "transparent": true,
       "type": "timeseries"
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prom-metrics"
+        "type": "postgres",
+        "uid": "prom-sql"
       },
       "fieldConfig": {
         "defaults": {
@@ -519,7 +605,7 @@
         "x": 0,
         "y": 12
       },
-      "id": 24,
+      "id": 33,
       "options": {
         "legend": {
           "calcs": [],
@@ -536,14 +622,36 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prom-metrics"
+            "type": "postgres",
+            "uid": "prom-sql"
           },
-          "editorMode": "builder",
-          "expr": "Errors{Resource=\"$FunctionName\", quantile=\"1\"}",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "  SELECT value AS errors, val(\"Resource_id\") AS service_name, time\n  FROM \"Errors_sum\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") = '$FunctionName'\n  ORDER BY time asc;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "\"ConcurrentExecutions\"",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "title": "Errors",
@@ -552,8 +660,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prom-metrics"
+        "type": "postgres",
+        "uid": "prom-sql"
       },
       "description": "",
       "fieldConfig": {
@@ -611,7 +719,7 @@
         "x": 12,
         "y": 12
       },
-      "id": 14,
+      "id": 36,
       "options": {
         "legend": {
           "calcs": [],
@@ -627,14 +735,36 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prom-metrics"
+            "type": "postgres",
+            "uid": "prom-sql"
           },
-          "editorMode": "builder",
-          "expr": "Throttles{Resource=\"$FunctionName\", quantile=\"1\"}",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT value AS throttles, val(\"Resource_id\") AS service_name, time\nFROM \"Throttles_sum\"\nWHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") = '$FunctionName'\nORDER BY time asc;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "\"ConcurrentExecutions\"",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "title": "Throttles",
@@ -643,8 +773,8 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "prom-metrics"
+        "type": "postgres",
+        "uid": "prom-sql"
       },
       "fieldConfig": {
         "defaults": {
@@ -701,7 +831,7 @@
         "x": 0,
         "y": 20
       },
-      "id": 12,
+      "id": 37,
       "options": {
         "legend": {
           "calcs": [],
@@ -717,14 +847,36 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "prom-metrics"
+            "type": "postgres",
+            "uid": "prom-sql"
           },
-          "editorMode": "builder",
-          "expr": "ConcurrentExecutions{Resource=\"$FunctionName\", quantile=\"1\"}",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT value AS executions, val(\"Resource_id\") AS service_name, time\nFROM \"ConcurrentExecutions\"\nWHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") = '$FunctionName' AND val(\"quantile_id\") = '1'\nORDER BY time asc;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "\"ConcurrentExecutions\"",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "title": "Concurrent Executions",
@@ -736,11 +888,12 @@
         "type": "jaeger",
         "uid": "prom-traces"
       },
-      "description": "Invocation duration based on trace data on a logarithmic scale over invocation start time",
+      "description": "Per invocation\n\n",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "fixedColor": "#023047",
+            "mode": "fixed"
           },
           "custom": {
             "axisCenteredZero": false,
@@ -749,7 +902,7 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 25,
+            "fillOpacity": 30,
             "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
@@ -780,10 +933,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -802,7 +951,7 @@
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": true
+          "showLegend": false
         },
         "tooltip": {
           "mode": "single",
@@ -848,11 +997,11 @@
             "mode": "percentage",
             "steps": [
               {
-                "color": "dark-blue",
+                "color": "#023047",
                 "value": null
               },
               {
-                "color": "dark-orange",
+                "color": "#fb8500",
                 "value": 60
               }
             ]
@@ -869,18 +1018,18 @@
       "id": 18,
       "options": {
         "displayMode": "gradient",
-        "minVizHeight": 10,
+        "minVizHeight": 15,
         "minVizWidth": 0,
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [],
           "fields": "/^Duration$/",
-          "limit": 15,
+          "limit": 1000,
           "values": true
         },
         "showUnfilled": true
       },
-      "pluginVersion": "9.2.2",
+      "pluginVersion": "9.2.1",
       "targets": [
         {
           "datasource": {
@@ -891,6 +1040,14 @@
           "queryType": "search",
           "refId": "A",
           "service": "$FunctionName"
+        },
+        {
+          "datasource": {
+            "type": "jaeger",
+            "uid": "prom-traces"
+          },
+          "hide": false,
+          "refId": "B"
         }
       ],
       "title": "Traces",
@@ -942,6 +1099,6 @@
   "timezone": "",
   "title": "firefly",
   "uid": "xgvmuzDVk",
-  "version": 16,
+  "version": 19,
   "weekStart": ""
 }
