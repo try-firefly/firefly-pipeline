@@ -118,7 +118,7 @@
         "type": "postgres",
         "uid": "prom-sql"
       },
-      "description": "",
+      "description": "Total over time period selected",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -204,7 +204,7 @@
         "type": "postgres",
         "uid": "prom-sql"
       },
-      "description": "",
+      "description": "Total over time period selected",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -290,7 +290,7 @@
         "type": "jaeger",
         "uid": "prom-traces"
       },
-      "description": "",
+      "description": "Average over time period selected",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -352,6 +352,7 @@
         "type": "postgres",
         "uid": "prom-sql"
       },
+      "description": "Average over time period selected",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -562,9 +563,9 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
+            "drawStyle": "bars",
+            "fillOpacity": 30,
+            "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
@@ -601,11 +602,11 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 24,
         "x": 0,
         "y": 12
       },
-      "id": 33,
+      "id": 38,
       "options": {
         "legend": {
           "calcs": [],
@@ -655,6 +656,118 @@
         }
       ],
       "title": "Errors",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "prom-sql"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#023047",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 30,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 20
+      },
+      "id": 37,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "prom-sql"
+          },
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT value AS executions, val(\"Resource_id\") AS service_name, time\nFROM \"ConcurrentExecutions\"\nWHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") = '$FunctionName' AND val(\"quantile_id\") = '1'\nORDER BY time asc;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "\"ConcurrentExecutions\"",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Concurrent Executions",
       "transparent": true,
       "type": "timeseries"
     },
@@ -714,10 +827,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 12,
-        "y": 12
+        "y": 20
       },
       "id": 36,
       "options": {
@@ -768,118 +881,6 @@
         }
       ],
       "title": "Throttles",
-      "transparent": true,
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "prom-sql"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#023047",
-            "mode": "fixed"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 30,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 20
-      },
-      "id": 37,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "prom-sql"
-          },
-          "format": "time_series",
-          "group": [],
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT value AS executions, val(\"Resource_id\") AS service_name, time\nFROM \"ConcurrentExecutions\"\nWHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") = '$FunctionName' AND val(\"quantile_id\") = '1'\nORDER BY time asc;",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "\"ConcurrentExecutions\"",
-          "timeColumn": "\"time\"",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "title": "Concurrent Executions",
       "transparent": true,
       "type": "timeseries"
     },
@@ -943,7 +944,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 29
       },
       "id": 4,
       "options": {
@@ -1013,7 +1014,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 37
+        "y": 38
       },
       "id": 18,
       "options": {
@@ -1099,6 +1100,6 @@
   "timezone": "",
   "title": "firefly",
   "uid": "xgvmuzDVk",
-  "version": 19,
+  "version": 3,
   "weekStart": ""
 }

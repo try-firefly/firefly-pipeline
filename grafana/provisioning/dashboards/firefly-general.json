@@ -38,7 +38,7 @@
         "defaults": {
           "color": {
             "fixedColor": "#023047",
-            "mode": "fixed"
+            "mode": "palette-classic"
           },
           "custom": {
             "axisCenteredZero": false,
@@ -169,7 +169,7 @@
         "defaults": {
           "color": {
             "fixedColor": "#023047",
-            "mode": "fixed"
+            "mode": "palette-classic"
           },
           "custom": {
             "axisCenteredZero": false,
@@ -300,7 +300,7 @@
         "defaults": {
           "color": {
             "fixedColor": "#023047",
-            "mode": "fixed"
+            "mode": "palette-classic"
           },
           "custom": {
             "axisCenteredZero": false,
@@ -501,7 +501,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH invocations AS (\n  SELECT sum(value) AS invocations, val(\"Resource_id\") AS service_name\n  FROM \"Invocations_count\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") IS NOT NULL\n  GROUP BY service_name\n), errors AS (\n  SELECT value AS errors, val(\"Resource_id\") AS service_name\n  FROM \"Errors_sum\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") IS NOT NULL\n), duration AS (\n  SELECT trace_id, max(duration_ms) as max_duration, service_name\n  FROM span\n  WHERE start_time > TO_TIMESTAMP(${__from} / 1000)\n  GROUP BY service_name, trace_id\n)\nSELECT  invocations.service_name AS \"Function\",\n        invocations.invocations AS \"Invocations\",\n        avg(duration.max_duration) AS \"Duration\",\n        sum(errors.errors) AS \"Errors\"\nFROM invocations                       \nLEFT JOIN errors ON invocations.service_name = errors.service_name\nLEFT JOIN duration ON invocations.service_name = duration.service_name\nGROUP BY \"Function\", \"Invocations\"; \n",
+          "rawSql": "WITH invocations AS (\n  SELECT sum(value) AS invocations, val(\"Resource_id\") AS service_name\n  FROM \"Invocations_count\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") IS NOT NULL\n  GROUP BY service_name\n), errors AS (\n  SELECT sum(value) AS errors, val(\"Resource_id\") AS service_name\n  FROM \"Errors_sum\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") IS NOT NULL\n  GROUP BY service_name\n), duration AS (\n  SELECT trace_id, max(duration_ms) as max_duration, service_name\n  FROM span\n  WHERE start_time > TO_TIMESTAMP(${__from} / 1000)\n  GROUP BY service_name, trace_id\n)\nSELECT  invocations.service_name AS \"Function\",\n        invocations.invocations AS \"Invocations\",\n        avg(duration.max_duration) AS \"Duration\",\n        errors.errors AS \"Errors\"\nFROM invocations                       \nLEFT JOIN errors ON invocations.service_name = errors.service_name\nLEFT JOIN duration ON invocations.service_name = duration.service_name\nGROUP BY \"Function\", \"Invocations\", \"Errors\";\n",
           "refId": "A",
           "select": [
             [
@@ -538,13 +538,13 @@
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "firefly-general",
   "uid": "oSe3-5vVk",
-  "version": 1,
+  "version": 10,
   "weekStart": ""
 }
