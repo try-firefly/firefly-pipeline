@@ -24,7 +24,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 6,
+  "id": 1,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -33,10 +33,12 @@
         "type": "postgres",
         "uid": "prom-sql"
       },
+      "description": "Per minute",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "fixedColor": "#023047",
+            "mode": "fixed"
           },
           "custom": {
             "axisCenteredZero": false,
@@ -45,8 +47,8 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
+            "fillOpacity": 30,
+            "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
@@ -82,44 +84,15 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "invocations myProducer"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 8,
-        "w": 7,
+        "w": 8,
         "x": 0,
         "y": 0
       },
@@ -145,6 +118,7 @@
           },
           "format": "time_series",
           "group": [],
+          "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
           "rawSql": "  SELECT sum(value) AS invocations, val(\"Resource_id\") AS service_name, time\n  FROM \"Invocations_count\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") IS NOT NULL\n  GROUP BY service_name, time\n  ORDER BY time asc;",
@@ -171,7 +145,7 @@
           ]
         }
       ],
-      "title": "Invocations Per Minute",
+      "title": "Invocations",
       "transformations": [
         {
           "id": "filterFieldsByName",
@@ -182,6 +156,7 @@
           }
         }
       ],
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -189,10 +164,12 @@
         "type": "postgres",
         "uid": "prom-sql"
       },
+      "description": "Per minute",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "fixedColor": "#023047",
+            "mode": "fixed"
           },
           "custom": {
             "axisCenteredZero": false,
@@ -201,8 +178,8 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
+            "fillOpacity": 30,
+            "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
@@ -238,45 +215,16 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "invocations myProducer"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 8,
-        "w": 7,
-        "x": 7,
+        "w": 8,
+        "x": 8,
         "y": 0
       },
       "id": 5,
@@ -301,6 +249,7 @@
           },
           "format": "time_series",
           "group": [],
+          "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
           "rawSql": "  SELECT value AS errors, val(\"Resource_id\") AS service_name, time\n  FROM \"Errors_sum\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") IS NOT NULL\n  ORDER BY time asc;",
@@ -327,7 +276,7 @@
           ]
         }
       ],
-      "title": "Error Per Minute",
+      "title": "Errors",
       "transformations": [
         {
           "id": "filterFieldsByName",
@@ -338,6 +287,7 @@
           }
         }
       ],
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -345,10 +295,12 @@
         "type": "postgres",
         "uid": "prom-sql"
       },
+      "description": "Per invocation",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "fixedColor": "#023047",
+            "mode": "fixed"
           },
           "custom": {
             "axisCenteredZero": false,
@@ -357,8 +309,8 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
+            "fillOpacity": 30,
+            "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
@@ -394,20 +346,17 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
-          }
+          },
+          "unit": "ms"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
-        "w": 7,
-        "x": 14,
+        "w": 8,
+        "x": 16,
         "y": 0
       },
       "id": 8,
@@ -470,6 +419,7 @@
           }
         }
       ],
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -483,13 +433,14 @@
             "mode": "thresholds"
           },
           "custom": {
-            "align": "auto",
+            "align": "left",
             "displayMode": "auto",
+            "filterable": true,
             "inspect": false
           },
           "links": [
             {
-              "targetBlank": true,
+              "targetBlank": false,
               "title": "To Function",
               "url": "d/xgvmuzDVk/firefly?orgId=1&refresh=30s&var-FunctionName=${__data.fields.Function}&from=now-3h&to=now"
             }
@@ -501,19 +452,29 @@
               {
                 "color": "green",
                 "value": null
-              },
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Duration"
+            },
+            "properties": [
               {
-                "color": "red",
-                "value": 80
+                "id": "unit",
+                "value": "ms"
               }
             ]
           }
-        },
-        "overrides": []
+        ]
       },
       "gridPos": {
         "h": 11,
-        "w": 23,
+        "w": 24,
         "x": 0,
         "y": 8
       },
@@ -528,7 +489,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "9.2.2",
+      "pluginVersion": "9.2.1",
       "targets": [
         {
           "datasource": {
@@ -537,6 +498,7 @@
           },
           "format": "table",
           "group": [],
+          "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
           "rawSql": "WITH invocations AS (\n  SELECT sum(value) AS invocations, val(\"Resource_id\") AS service_name\n  FROM \"Invocations_count\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") IS NOT NULL\n  GROUP BY service_name\n), errors AS (\n  SELECT value AS errors, val(\"Resource_id\") AS service_name\n  FROM \"Errors_sum\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") IS NOT NULL\n), duration AS (\n  SELECT trace_id, max(duration_ms) as max_duration, service_name\n  FROM span\n  WHERE start_time > TO_TIMESTAMP(${__from} / 1000)\n  GROUP BY service_name, trace_id\n)\nSELECT  invocations.service_name AS \"Function\",\n        invocations.invocations AS \"Invocations\",\n        avg(duration.max_duration) AS \"Duration\",\n        sum(errors.errors) AS \"Errors\"\nFROM invocations                       \nLEFT JOIN errors ON invocations.service_name = errors.service_name\nLEFT JOIN duration ON invocations.service_name = duration.service_name\nGROUP BY \"Function\", \"Invocations\"; \n",
@@ -564,9 +526,11 @@
         }
       ],
       "title": "Functions",
+      "transparent": true,
       "type": "table"
     }
   ],
+  "refresh": "30s",
   "schemaVersion": 37,
   "style": "dark",
   "tags": [],
@@ -581,6 +545,6 @@
   "timezone": "",
   "title": "firefly-general",
   "uid": "oSe3-5vVk",
-  "version": 13,
+  "version": 11,
   "weekStart": ""
 }
