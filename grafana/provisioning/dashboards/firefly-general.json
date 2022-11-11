@@ -121,7 +121,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "  SELECT sum(value) AS invocations, val(\"Resource_id\") AS service_name, time\n  FROM \"Invocations_count\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") IS NOT NULL\n  GROUP BY service_name, time\n  ORDER BY time asc;",
+          "rawSql": "SELECT sum(value) AS invocations, val(\"Resource_id\") AS service_name, time\nFROM \"Invocations_count\"\nWHERE val(\"Resource_id\") IS NOT NULL\nGROUP BY service_name, time\nORDER BY time asc;",
           "refId": "A",
           "select": [
             [
@@ -252,7 +252,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "  SELECT value AS errors, val(\"Resource_id\") AS service_name, time\n  FROM \"Errors_sum\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") IS NOT NULL\n  ORDER BY time asc;",
+          "rawSql": "SELECT value AS errors, val(\"Resource_id\") AS service_name, time\nFROM \"Errors_sum\"\nWHERE val(\"Resource_id\") IS NOT NULL\nORDER BY time asc;",
           "refId": "A",
           "select": [
             [
@@ -384,7 +384,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT max(duration_ms) AS max_duration, service_name, start_time AS time\nFROM span\nWHERE start_time > TO_TIMESTAMP(${__from} / 1000) AND service_name = span_name\nGROUP BY service_name, time\nORDER BY time asc;",
+          "rawSql": "WITH sum AS (\n  SELECT time, value, val(\"Resource_id\") as resource\n  FROM \"Duration_sum\"\n  WHERE val(\"Resource_id\") IS NOT NULL\n), count AS (\n  SELECT time, value, val(\"Resource_id\") as resource\n  FROM \"Duration_count\"\n  WHERE val(\"Resource_id\") IS NOT NULL\n)\nSELECT sum.time as time, (sum.value / count.value) as avg_duration, sum.resource as resource\nFROM sum\nLEFT JOIN count ON sum.time = count.time AND sum.resource = count.resource\nORDER BY time asc;",
           "refId": "A",
           "select": [
             [
@@ -446,6 +446,7 @@
             }
           ],
           "mappings": [],
+          "noValue": "-",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -489,7 +490,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "9.2.2",
       "targets": [
         {
           "datasource": {
@@ -501,7 +502,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH invocations AS (\n  SELECT sum(value) AS invocations, val(\"Resource_id\") AS service_name\n  FROM \"Invocations_count\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") IS NOT NULL\n  GROUP BY service_name\n), errors AS (\n  SELECT sum(value) AS errors, val(\"Resource_id\") AS service_name\n  FROM \"Errors_sum\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") IS NOT NULL\n  GROUP BY service_name\n), duration AS (\n  SELECT trace_id, max(duration_ms) as max_duration, service_name\n  FROM span\n  WHERE start_time > TO_TIMESTAMP(${__from} / 1000)\n  GROUP BY service_name, trace_id\n)\nSELECT  invocations.service_name AS \"Function\",\n        invocations.invocations AS \"Invocations\",\n        avg(duration.max_duration) AS \"Duration\",\n        errors.errors AS \"Errors\"\nFROM invocations                       \nLEFT JOIN errors ON invocations.service_name = errors.service_name\nLEFT JOIN duration ON invocations.service_name = duration.service_name\nGROUP BY \"Function\", \"Invocations\", \"Errors\";\n",
+          "rawSql": "WITH functions AS (\n  SELECT DISTINCT val(\"Resource_id\") AS service_name\n  FROM \"Invocations\"\n  WHERE val(\"Resource_id\") IS NOT NULL\n), invocations AS (\n  SELECT sum(value) AS invocations, val(\"Resource_id\") AS service_name\n  FROM \"Invocations_count\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") IS NOT NULL\n  GROUP BY service_name\n), errors AS (\n  SELECT sum(value) AS errors, val(\"Resource_id\") AS service_name\n  FROM \"Errors_sum\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") IS NOT NULL\n  GROUP BY service_name\n), duration_sum AS (\n  SELECT sum(value) AS value, val(\"Resource_id\") as service_name\n  FROM \"Duration_sum\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") IS NOT NULL\n  GROUP BY service_name\n), duration_count AS (\n  SELECT sum(value) AS value, val(\"Resource_id\") as service_name\n  FROM \"Duration_count\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") IS NOT NULL\n  GROUP BY service_name\n)\nSELECT  functions.service_name AS \"Function\",\n        invocations.invocations AS \"Invocations\",\n        (duration_sum.value / duration_count.value) AS \"Duration\",\n        errors.errors AS \"Errors\"\nFROM functions\nLEFT JOIN invocations ON functions.service_name = invocations.service_name                       \nLEFT JOIN errors ON functions.service_name = errors.service_name\nLEFT JOIN duration_sum ON functions.service_name = duration_sum.service_name\nLEFT JOIN duration_count ON functions.service_name = duration_count.service_name;",
           "refId": "A",
           "select": [
             [
@@ -545,6 +546,6 @@
   "timezone": "",
   "title": "firefly-general",
   "uid": "oSe3-5vVk",
-  "version": 10,
+  "version": 12,
   "weekStart": ""
 }
