@@ -54,7 +54,7 @@ location /v1/traces {
 
 ## Install pipeline infrastructure
 
-1. `git clone` [this](https://github.com/try-firefly/firefly-pipeline) repo onto your server
+1. `git clone` this repo onto your server
 2. `cd` into the directory
 3. Run the following command:
 ```
