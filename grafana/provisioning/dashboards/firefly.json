@@ -1040,7 +1040,7 @@
         "type": "postgres",
         "uid": "prom-sql"
       },
-      "description": "Traces the function emitted spans for over time period selected",
+      "description": "A list of traces the function emitted spans for within the selected time period",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1066,7 +1066,7 @@
                 "true": {
                   "color": "#fb8500",
                   "index": 0,
-                  "text": "🔥💥❗❗"
+                  "text": "🔥"
                 }
               },
               "type": "value"
@@ -1076,11 +1076,11 @@
             "mode": "percentage",
             "steps": [
               {
-                "color": "#ff8500"
+                "color": "#ffb703"
               },
               {
-                "color": "#ffb703",
-                "value": 60
+                "color": "#023047",
+                "value": 70
               }
             ]
           }
@@ -1228,19 +1228,7 @@
         }
       ],
       "title": "Traces",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Exception": false,
-              "searchTraceID": false
-            },
-            "indexByName": {},
-            "renameByName": {}
-          }
-        }
-      ],
+      "transformations": [],
       "transparent": true,
       "type": "table"
     }
@@ -1288,6 +1276,6 @@
   "timezone": "",
   "title": "firefly",
   "uid": "xgvmuzDVk",
-  "version": 18,
+  "version": 23,
   "weekStart": ""
 }
