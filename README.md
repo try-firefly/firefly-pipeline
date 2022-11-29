@@ -1,20 +1,20 @@
 ## Prerequisites
 
-* Running docker daemon
-* Server accessible via an HTTPS endpoint
+- Running docker daemon
+- Server accessible via an HTTPS endpoint
 
 ## Server setup
 
 Firefly requires you to self-host the pipeline infrastructure. You will therefore need a server with an HTTPS enpoint in which telemetry data can be sent to. Some popular providers include:
 
-* [AWS](https://aws.amazon.com/ec2/getting-started/)
-* [Digital Ocean](https://docs.digitalocean.com/products/getting-started/)
+- [AWS](https://aws.amazon.com/ec2/getting-started/)
+- [Digital Ocean](https://docs.digitalocean.com/products/getting-started/)
 
 Once you have a running server with an HTTPS endpoint, some routing configuration is required to receive telemetry data. The pipeline infrastructure exposes the following ports:
 
-* `3000` - grafana (dashboards)
-* `4433` - metrics endpoint
-* `4318` - traces endpoint
+- `3000` - grafana (dashboards)
+- `4433` - metrics endpoint
+- `4318` - traces endpoint
 
 If you are running a reverse proxy then please find the relevant instructions [here](https://grafana.com/tutorials/run-grafana-behind-a-proxy/) to setup grafana.
 As an alternative you can also setup a bespoke subdomain for grafana. For example, if you your endpoint was `https://example.io`, your grafana subdomain could be `https://grafana.example.io`. This way you only have to handle traffic to one path. So, if you were using `nginx` as your reverse proxy, your server block could simply be:
@@ -57,6 +57,7 @@ location /v1/traces {
 1. `git clone` this repo onto your server
 2. `cd` into the directory
 3. Run the following command:
+
 ```
 docker-compose up -d
 ```

@@ -25,7 +25,20 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": 2,
-  "links": [],
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "dashboard",
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": false,
+      "title": "firefly-general",
+      "tooltip": "",
+      "type": "link",
+      "url": "/d/oSe3-5vVk/firefly-general?orgId=1&refresh=30s"
+    }
+  ],
   "liveNow": false,
   "panels": [
     {
@@ -73,7 +86,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "9.2.2",
       "targets": [
         {
           "datasource": {
@@ -159,7 +172,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "9.2.2",
       "targets": [
         {
           "datasource": {
@@ -245,7 +258,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "9.2.2",
       "targets": [
         {
           "datasource": {
@@ -287,8 +300,8 @@
     },
     {
       "datasource": {
-        "type": "jaeger",
-        "uid": "prom-traces"
+        "type": "postgres",
+        "uid": "prom-sql"
       },
       "description": "Average over time period selected",
       "fieldConfig": {
@@ -306,7 +319,8 @@
                 "value": null
               }
             ]
-          }
+          },
+          "unit": "ms"
         },
         "overrides": []
       },
@@ -331,19 +345,43 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "9.2.2",
       "targets": [
         {
           "datasource": {
-            "type": "jaeger",
-            "uid": "prom-traces"
+            "type": "postgres",
+            "uid": "prom-sql"
           },
-          "queryType": "search",
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH duration_sum AS (\n  SELECT sum(value) AS value, val(\"Resource_id\") as service_name\n  FROM \"Duration_sum\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") = '$FunctionName'\n  GROUP BY service_name\n), duration_count AS (\n  SELECT sum(value) AS value, val(\"Resource_id\") as service_name\n  FROM \"Duration_count\"\n  WHERE time > TO_TIMESTAMP(${__from} / 1000) AND val(\"Resource_id\") = '$FunctionName'\n  GROUP BY service_name\n)\nSELECT  (duration_sum.value / duration_count.value) AS \"Duration\"\nFROM duration_sum\nLEFT JOIN duration_count ON duration_sum.service_name = duration_count.service_name;",
           "refId": "A",
-          "service": "$FunctionName"
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "\"ConcurrentExecutions\"",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
-      "title": "Average Duration",
+      "title": "Duration",
       "transparent": true,
       "type": "stat"
     },
@@ -394,7 +432,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "9.2.2",
       "targets": [
         {
           "datasource": {
@@ -664,6 +702,121 @@
         "type": "postgres",
         "uid": "prom-sql"
       },
+      "description": "Per invocation\n\n",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "#023047",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 30,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "log": 2,
+              "type": "log"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "id": 40,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.2.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "prom-sql"
+          },
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH sum AS (\n  SELECT time, value, val(\"Resource_id\") as resource\n  FROM \"Duration_sum\"\n  WHERE val(\"Resource_id\") = '$FunctionName'\n), count AS (\n  SELECT time, value, val(\"Resource_id\") as resource\n  FROM \"Duration_count\"\n  WHERE val(\"Resource_id\") = '$FunctionName'\n)\nSELECT sum.time as time, (sum.value / count.value) as avg_duration, sum.resource as resource\nFROM sum\nLEFT JOIN count ON sum.time = count.time AND sum.resource = count.resource\nORDER BY time asc;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "\"ConcurrentExecutions\"",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Duration",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "prom-sql"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -705,8 +858,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -717,7 +869,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 20
+        "y": 29
       },
       "id": 37,
       "options": {
@@ -818,8 +970,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -830,7 +981,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 20
+        "y": 29
       },
       "id": 36,
       "options": {
@@ -886,10 +1037,10 @@
     },
     {
       "datasource": {
-        "type": "jaeger",
-        "uid": "prom-traces"
+        "type": "postgres",
+        "uid": "prom-sql"
       },
-      "description": "Per invocation\n\n",
+      "description": "A list of traces the function emitted spans for within the selected time period",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -897,164 +1048,189 @@
             "mode": "fixed"
           },
           "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 30,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "log": 2,
-              "type": "log"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 24,
-        "x": 0,
-        "y": 29
-      },
-      "id": 4,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "9.2.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "jaeger",
-            "uid": "prom-traces"
-          },
-          "hide": false,
-          "queryType": "search",
-          "refId": "A",
-          "service": "$FunctionName"
-        }
-      ],
-      "title": "Trace Duration",
-      "transparent": true,
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "jaeger",
-        "uid": "prom-traces"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
+            "align": "left",
+            "displayMode": "color-text",
+            "filterable": true,
+            "inspect": true
           },
           "links": [
             {
               "targetBlank": true,
               "title": "Trace View",
-              "url": "/explore?orgId=1&left=%7B%22datasource%22:%22prom-traces%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22datasource%22:%7B%22type%22:%22jaeger%22,%22uid%22:%22prom-traces%22%7D,%22query%22:%22${__data.fields[\"traceID\"]}%22%7D%5D,%22range%22:%7B%22from%22:%22now-1h%22,%22to%22:%22now%22%7D%7D"
+              "url": "/explore?orgId=1&left=%7B%22datasource%22:%22prom-traces%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22datasource%22:%7B%22type%22:%22jaeger%22,%22uid%22:%22prom-traces%22%7D,%22query%22:%22${__data.fields[\"searchTraceID\"]}%22%7D%5D,%22range%22:%7B%22from%22:%22now-1h%22,%22to%22:%22now%22%7D%7D"
             }
           ],
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "true": {
+                  "color": "#fb8500",
+                  "index": 0,
+                  "text": "🔥"
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "mode": "percentage",
             "steps": [
               {
-                "color": "#023047",
-                "value": null
+                "color": "#ffb703"
               },
               {
-                "color": "#fb8500",
-                "value": 60
+                "color": "#023047",
+                "value": 70
               }
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Trace Duration"
+            },
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "lcd-gauge"
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "color"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Trace Start Time"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 170
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Span Start Time"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 170
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Trace ID"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 200
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "searchTraceID"
+            },
+            "properties": [
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Exception"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 10,
+        "h": 11,
         "w": 24,
         "x": 0,
         "y": 38
       },
-      "id": 18,
+      "id": 41,
       "options": {
-        "displayMode": "gradient",
-        "minVizHeight": 15,
-        "minVizWidth": 0,
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [],
-          "fields": "/^Duration$/",
-          "limit": 1000,
-          "values": true
+        "footer": {
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
         },
-        "showUnfilled": true
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Span Start Time"
+          }
+        ]
       },
-      "pluginVersion": "9.2.1",
+      "pluginVersion": "9.2.2",
       "targets": [
         {
           "datasource": {
-            "type": "jaeger",
-            "uid": "prom-traces"
+            "type": "postgres",
+            "uid": "prom-sql"
           },
+          "format": "table",
+          "group": [],
           "hide": false,
-          "queryType": "search",
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "WITH duration AS (\n  SELECT trace_id, max(end_time) AS trace_end_time, min(start_time) AS trace_start_time, EXTRACT(EPOCH FROM (max(end_time) - min(start_time)))*1000 AS duration\n  FROM span\n  WHERE service_name = '$FunctionName'\n  GROUP BY trace_id\n), exceptions AS (\n  SELECT trace_id, span_id, TRUE AS exception\n  FROM event\n  WHERE event_name = 'exception' AND service_name = '$FunctionName'\n), traces AS (\n  SELECT trace_id, min(start_time) AS span_start_time\n  FROM span\n  WHERE service_name = '$FunctionName'\n  GROUP BY trace_id\n)\nSELECT  traces.trace_id AS \"Trace ID\",\n        duration.duration AS \"Trace Duration\",\n        duration.trace_start_time AS \"Trace Start Time\",\n        traces.span_start_time AS \"Span Start Time\",\n        exceptions.exception AS \"Exception\", \n        REPLACE(CAST(traces.trace_id AS text), '-', '') AS \"searchTraceID\"\nFROM traces\nLEFT JOIN duration ON traces.trace_id = duration.trace_id\nLEFT JOIN exceptions ON traces.trace_id = exceptions.trace_id\nWHERE traces.span_start_time > TO_TIMESTAMP(${__from} / 1000);",
           "refId": "A",
-          "service": "$FunctionName"
-        },
-        {
-          "datasource": {
-            "type": "jaeger",
-            "uid": "prom-traces"
-          },
-          "hide": false,
-          "refId": "B"
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "\"ConcurrentExecutions\"",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "title": "Traces",
       "transformations": [],
       "transparent": true,
-      "type": "bargauge"
+      "type": "table"
     }
   ],
   "refresh": "30s",
@@ -1100,6 +1276,6 @@
   "timezone": "",
   "title": "firefly",
   "uid": "xgvmuzDVk",
-  "version": 3,
+  "version": 23,
   "weekStart": ""
 }
