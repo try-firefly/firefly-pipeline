@@ -1203,7 +1203,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "WITH duration AS (\n  SELECT trace_id, max(end_time) AS trace_end_time, min(start_time) AS trace_start_time, EXTRACT(EPOCH FROM (max(end_time) - min(start_time)))*1000 AS duration\n  FROM span\n  WHERE service_name = '$FunctionName'\n  GROUP BY trace_id\n), exceptions AS (\n  SELECT trace_id, span_id, TRUE AS exception\n  FROM event\n  WHERE event_name = 'exception' AND service_name = '$FunctionName'\n), traces AS (\n  SELECT trace_id, min(start_time) AS span_start_time\n  FROM span\n  WHERE service_name = '$FunctionName'\n  GROUP BY trace_id\n)\nSELECT  traces.trace_id AS \"Trace ID\",\n        duration.duration AS \"Trace Duration\",\n        duration.trace_start_time AS \"Trace Start Time\",\n        traces.span_start_time AS \"Span Start Time\",\n        exceptions.exception AS \"Exception\", \n        REPLACE(CAST(traces.trace_id AS text), '-', '') AS \"searchTraceID\"\nFROM traces\nLEFT JOIN duration ON traces.trace_id = duration.trace_id\nLEFT JOIN exceptions ON traces.trace_id = exceptions.trace_id\nWHERE traces.span_start_time > TO_TIMESTAMP(${__from} / 1000);",
+          "rawSql": "WITH duration AS (\n  SELECT trace_id, max(end_time) AS trace_end_time, min(start_time) AS trace_start_time, EXTRACT(EPOCH FROM (max(end_time) - min(start_time)))*1000 AS duration\n  FROM span\n  GROUP BY trace_id\n), exceptions AS (\n  SELECT trace_id, span_id, TRUE AS exception\n  FROM event\n  WHERE event_name = 'exception' AND service_name = '$FunctionName'\n), traces AS (\n  SELECT trace_id, min(start_time) AS span_start_time\n  FROM span\n  WHERE service_name = '$FunctionName'\n  GROUP BY trace_id\n)\nSELECT  traces.trace_id AS \"Trace ID\",\n        duration.duration AS \"Trace Duration\",\n        duration.trace_start_time AS \"Trace Start Time\",\n        traces.span_start_time AS \"Span Start Time\",\n        exceptions.exception AS \"Exception\", \n        REPLACE(CAST(traces.trace_id AS text), '-', '') AS \"searchTraceID\"\nFROM traces\nLEFT JOIN duration ON traces.trace_id = duration.trace_id\nLEFT JOIN exceptions ON traces.trace_id = exceptions.trace_id\nWHERE traces.span_start_time > TO_TIMESTAMP(${__from} / 1000);",
           "refId": "A",
           "select": [
             [
@@ -1276,6 +1276,6 @@
   "timezone": "",
   "title": "firefly",
   "uid": "xgvmuzDVk",
-  "version": 23,
+  "version": 24,
   "weekStart": ""
 }
