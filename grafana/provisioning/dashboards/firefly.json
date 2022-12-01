@@ -1113,7 +1113,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 170
+                "value": 180
               }
             ]
           },
@@ -1125,7 +1125,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 170
+                "value": 180
               }
             ]
           },
@@ -1137,7 +1137,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 200
+                "value": 300
               }
             ]
           },
@@ -1260,7 +1260,7 @@
           "query": "Invocations",
           "refId": "StandardVariableQuery"
         },
-        "refresh": 1,
+        "refresh": 2,
         "regex": "/.*Resource=\"([^\"]*).*/",
         "skipUrlSync": false,
         "sort": 0,
@@ -1276,6 +1276,6 @@
   "timezone": "",
   "title": "firefly",
   "uid": "xgvmuzDVk",
-  "version": 24,
+  "version": 26,
   "weekStart": ""
 }
